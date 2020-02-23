@@ -82,7 +82,7 @@ public class DrawingPanel extends JPanel implements Runnable {
 			Stroke prevStroke = g2d.getStroke();
 			Color prevColor = g2d.getColor();
 			g2d.setStroke(bold);
-			g2d.setColor(Color.RED);
+			g2d.setColor(Color.BLUE);
 			g2d.draw(rect);
 			g2d.setStroke(prevStroke);
 			g2d.setColor(prevColor);
@@ -93,7 +93,7 @@ public class DrawingPanel extends JPanel implements Runnable {
 			Stroke prevStroke = g2d.getStroke();
 			Color prevColor = g2d.getColor();
 			g2d.setStroke(dashed);
-			g2d.setColor(Color.BLUE);
+			g2d.setColor(Color.RED);
 			g2d.draw(line);
 			line = Car.getLeftInfraredLine();
 			g2d.setColor(Color.GREEN);
