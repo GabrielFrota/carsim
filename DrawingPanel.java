@@ -32,24 +32,26 @@ public class DrawingPanel extends JPanel implements Runnable {
 		
 		addMouseListener(new MouseAdapter() {
 			@Override public void mouseClicked(MouseEvent e) {
-				if (State.get() == State.SET_TILES) {
+				switch (State.get()) {
+				case SET_TILES:
 					if (SwingUtilities.isLeftMouseButton(e)) {
 						World.setTile(e.getX(), e.getY(), TileSize.get());
 						repaint();
-					}
-					else if (SwingUtilities.isRightMouseButton(e)) {
+					} else if (SwingUtilities.isRightMouseButton(e)) {
 						World.removeTile(e.getX(), e.getY(), TileSize.get());
 						repaint();
 					}
-				}
-				else if (State.get() == State.SET_CAR) {
+					break;
+				case SET_CAR:
 					Car.init(e.getX(), e.getY());
 					repaint();
+					break;
+				case STEP_ON:
+					Car.oneCycle();
+					repaint();
+				default:
+					return;
 				}
-//				else if (State.get() == State.SIMULATION_ON) {
-//					Car.oneCycle();
-//					repaint();
-//				}
 			}
 		});
 		

@@ -1,7 +1,7 @@
 
 public enum State {
 	
-	NONE, SET_TILES, SET_CAR, SIMULATION_ON;
+	NONE, SET_TILES, SET_CAR, SIMULATION_ON, STEP_ON;
 	
 	private static State current; 
 	

@@ -18,14 +18,12 @@ public class World {
 		if (f.exists()) {
 			try {
 				image = ImageIO.read(f);
-				if (image == null) throw new IOException();
+				if (image == null) 
+					throw new IOException();
+			} catch (Exception ex) {
+				throw new AssertionError(ex);
 			}
-			catch (Exception ex) {
-				System.err.println("Unexpected system error while reading file");
-				ex.printStackTrace();
-			}
-		}
-		else {
+		} else {
 			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
 			Graphics2D g = image.createGraphics();
 			g.setColor(defaultColor);
@@ -63,15 +61,18 @@ public class World {
 	public static void saveToFile() {
 		try {
 			boolean success = ImageIO.write(image, "bmp", new File("world.bmp"));
-			if (!success) throw new IOException();
-		}
-		catch (Exception ex) {
-			System.err.println("Unexpected system error while writing file");
-			ex.printStackTrace();
+			if (!success) 
+				throw new IOException();
+		} catch (Exception ex) {
+			throw new AssertionError(ex);
 		}
 	}
 	
 	public static boolean checkPoint(int x, int y) {
+		if (x >= image.getWidth() || y >= image.getHeight()
+			|| x < 0 || y < 0)
+			return true;
+		
 		return image.getRGB(x, y) == Color.black.getRGB();
 	}
 	
