@@ -5,8 +5,10 @@ import java.awt.Graphics2D;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -20,6 +22,7 @@ public class DrawingPanel extends JPanel implements Runnable {
 
 	private int mouseX;
 	private int mouseY;
+	private boolean mouseDragged;
 	
 	@Override public void run() {			
 		Car.oneCycle();
@@ -31,7 +34,8 @@ public class DrawingPanel extends JPanel implements Runnable {
 		super();
 		
 		addMouseListener(new MouseAdapter() {
-			@Override public void mouseClicked(MouseEvent e) {
+			@Override 
+			public void mouseClicked(MouseEvent e) {
 				switch (State.get()) {
 				case SET_TILES:
 					if (SwingUtilities.isLeftMouseButton(e)) {
@@ -53,14 +57,33 @@ public class DrawingPanel extends JPanel implements Runnable {
 					return;
 				}
 			}
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				if (State.get() == State.SET_TILES && mouseDragged) {
+					repaint();		
+					mouseDragged = false;
+				}
+			}
 		});
 		
 		addMouseMotionListener(new MouseAdapter() {
-			@Override public void mouseMoved(MouseEvent e) {
-				if (State.get() == State.SET_TILES) {
+			@Override 
+			public void mouseMoved(MouseEvent e) {
+				if (State.get() == State.SET_TILES 
+					|| State.get() == State.SET_CAR) {
 					mouseX = e.getX();
 					mouseY = e.getY();
 					repaint();
+				}
+			}
+			@Override 
+			public void mouseDragged(MouseEvent e) {
+				if (State.get() == State.SET_TILES) {
+					if (SwingUtilities.isLeftMouseButton(e)) 
+						World.setTile(e.getX(), e.getY(), TileSize.get());
+					else
+						World.removeTile(e.getX(), e.getY(), TileSize.get());
+					mouseDragged = true;
 				}
 			}
 		});
@@ -74,9 +97,27 @@ public class DrawingPanel extends JPanel implements Runnable {
 			g.drawImage(World.get(), 0, 0, null);
 		}
 		
-		if (mouseX != 0 && mouseY != 0
-			&& State.get() == State.SET_TILES) {		
-			g.drawRect(mouseX, mouseY, TileSize.get(), TileSize.get());
+		if (mouseX != 0 && mouseY != 0) {
+			if (State.get() == State.SET_TILES) 		
+				g.drawRect(mouseX, mouseY, TileSize.get(), TileSize.get());
+			else if (State.get() == State.SET_CAR) {
+				Path2D carRect = new Path2D.Double();
+				double halfW = Config.CAR_WIDTH / 2;
+				double halfH = Config.CAR_HEIGHT / 2;
+				carRect.moveTo(mouseX - halfW, mouseY - halfH);
+				carRect.lineTo(mouseX + halfW, mouseY - halfH);
+				carRect.moveTo(mouseX + halfW, mouseY - halfH);
+				carRect.lineTo(mouseX + halfW, mouseY + halfH);
+				carRect.moveTo(mouseX + halfW, mouseY + halfH);
+				carRect.lineTo(mouseX - halfW, mouseY + halfH);
+				carRect.moveTo(mouseX - halfW, mouseY + halfH);
+				carRect.lineTo(mouseX - halfW, mouseY - halfH);
+				carRect.closePath();
+				AffineTransform at = AffineTransform.getRotateInstance(Config.CAR_DIRECTION, 
+						carRect.getBounds2D().getCenterX(), carRect.getBounds2D().getCenterY());
+				carRect.transform(at);
+				g2d.draw(carRect);
+			}
 		}
 		
 		Path2D rect = Car.getCarRect();
@@ -106,5 +147,5 @@ public class DrawingPanel extends JPanel implements Runnable {
 			g2d.setColor(prevColor);
 		}
 	}
-	
+		
 }

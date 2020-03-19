@@ -8,29 +8,19 @@ import java.util.Queue;
 public class Car {
 
 	private static Path2D carRect;
-	private static int width;
-	private static int height;
 	private static double direction;
 	private static int speed;
 
 	private static Path2D leftInfraredLine;
-	private static int leftInfraredDist;
+	private static double leftInfraredDist;
 	private static Path2D rightInfraredLine;
-	private static int rightInfraredDist;
-	private static int infraredRange;
-	private static int infraredThreshold;
+	private static double rightInfraredDist;
 
 	private static Path2D ultrasonicLine;
 	private static double ultrasonicDirection;
-	private static int ultrasonicDist;
-	private static int ultrasonicDistLeft;
-	private static int ultrasonicDistRight;
-	private static int ultrasonicRange;
-	private static int ultrasonicThreshold;
-
-	private static double rad45 = Math.toRadians(45);
-	private static double rad10 = Math.toRadians(10);
-	private static double rad5 = Math.toRadians(5);
+	private static double ultrasonicDist;
+	private static double ultrasonicDistLeft;
+	private static double ultrasonicDistRight;
 	
 	static class CycleParams {
 		public double rotation;
@@ -54,32 +44,42 @@ public class Car {
 	private static void enqueueUltrasonicRotate() {
 		ultrasonicDistLeft = 0;
 		ultrasonicDistRight = 0;
-		enqueueParams(new CycleParams(0, -rad10, 0), 7);
-		enqueueParams(new CycleParams(0, -rad5, 0), 1);
+		enqueueParams(new CycleParams(0, -Config.ULTRASONIC_ROTATION_STEP, 0), Config.ULTRASONIC_ROTATION_CNT);
+		if (Config.ULTRASONIC_ROTATION_REMINDER != 0)
+			enqueueParams(new CycleParams(0, -Config.ULTRASONIC_ROTATION_STEP 
+					* Config.ULTRASONIC_ROTATION_REMINDER, 0), 1);		
 	}
 	
 	private static void ultrasonicCheck() {
 		if (ultrasonicDistLeft == 0 && speed == 0) {
 			ultrasonicDistLeft = ultrasonicDist;
-			enqueueParams(new CycleParams(0, rad10, 0), 7 * 2);
-			enqueueParams(new CycleParams(0, rad5, 0), 1 * 2);
+			enqueueParams(new CycleParams(0, Config.ULTRASONIC_ROTATION_STEP, 0), Config.ULTRASONIC_ROTATION_CNT * 2);
+			if (Config.ULTRASONIC_ROTATION_REMINDER != 0)
+				enqueueParams(new CycleParams(0, Config.ULTRASONIC_ROTATION_STEP 
+						* Config.ULTRASONIC_ROTATION_REMINDER, 0), 1 * 2);		
 		} else if (ultrasonicDistRight == 0 && speed == 0) { 
 			ultrasonicDistRight = ultrasonicDist;
-			enqueueParams(new CycleParams(0, -rad10, 0), 7);
-			enqueueParams(new CycleParams(0, -rad5, 0), 1);
+			enqueueParams(new CycleParams(0, -Config.ULTRASONIC_ROTATION_STEP, 0), Config.ULTRASONIC_ROTATION_CNT);
+			if (Config.ULTRASONIC_ROTATION_REMINDER != 0)
+				enqueueParams(new CycleParams(0, -Config.ULTRASONIC_ROTATION_STEP 
+						* Config.ULTRASONIC_ROTATION_REMINDER, 0), 1);		
 		}
 	}
 	
 	private static void rotateLeft() {
-		enqueueParams(new CycleParams(-rad5, 0, 0), 14);
-		enqueueParams(new CycleParams(-rad5, 0, 1), 1);
+		enqueueParams(new CycleParams(-Config.CAR_ROTATION_STEP, 0, 0), Config.CAR_ROTATION_CNT);
+		if (Config.CAR_ROTATION_REMINDER != 0)
+			enqueueParams(new CycleParams(-Config.CAR_ROTATION_STEP * Config.CAR_ROTATION_REMINDER, 0, 0), 1);
+		enqueueParams(new CycleParams(0, 0, Config.CAR_SPEED), 1);
 	}
 	
 	private static void rotateRight() {
-		enqueueParams(new CycleParams(rad5, 0, 0), 14);
-		enqueueParams(new CycleParams(rad5, 0, 1), 1);
+		enqueueParams(new CycleParams(Config.CAR_ROTATION_STEP, 0, 0), Config.CAR_ROTATION_CNT);
+		if (Config.CAR_ROTATION_REMINDER != 0)
+			enqueueParams(new CycleParams(Config.CAR_ROTATION_STEP * Config.CAR_ROTATION_REMINDER, 0, 0), 1);
+		enqueueParams(new CycleParams(0, 0, Config.CAR_SPEED), 1);
 	}
-
+	
 	public static void oneCycle() {
 		if (carRect == null)
 			return;
@@ -141,23 +141,23 @@ public class Car {
 		boolean leftCollision = arr[0] != (int) points[0][0] 
 				|| arr[1] != (int) points[0][1];
 		
-		if (frontCollision || rightCollision || backCollision || leftCollision) {
-			paramsQueue.clear();
-			if (frontCollision) {
-				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : -rad10), 0, -2), 2);
-			} else if (leftCollision) {
-				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : rad10), 0, -1), 2);
-			} else if (rightCollision) {
-				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : -rad10), 0, -1), 2);
-			} else if (backCollision) {
-				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : rad10), 0, 2), 2);
-			}
-			enqueueUltrasonicRotate();
-		}
+//		if (frontCollision || rightCollision || backCollision || leftCollision) {
+//			paramsQueue.clear();
+//			if (frontCollision) {
+//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : -rad10), 0, -2), 2);
+//			} else if (leftCollision) {
+//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : rad10), 0, -1), 2);
+//			} else if (rightCollision) {
+//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : -rad10), 0, -1), 2);
+//			} else if (backCollision) {
+//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : rad10), 0, 2), 2);
+//			}
+//			enqueueUltrasonicRotate();
+//		}
 		
 		double[] leftInfraredP1 = getFirstMoveTo(carRect);
-		Point2D leftInfraredP2 = new Point2D.Double(leftInfraredP1[0], leftInfraredP1[1] - infraredRange);
-		at = AffineTransform.getRotateInstance(direction - rad45, leftInfraredP1[0], leftInfraredP1[1]);
+		Point2D leftInfraredP2 = new Point2D.Double(leftInfraredP1[0], leftInfraredP1[1] - Config.INFRARED_RANGE);
+		at = AffineTransform.getRotateInstance(direction + Config.INFRARED_ANGLE_LEFT, leftInfraredP1[0], leftInfraredP1[1]);
 		at.transform(leftInfraredP2, leftInfraredP2);
 		arr = bresenham((int) leftInfraredP1[0], (int) leftInfraredP1[1], 
 				(int) leftInfraredP2.getX(), (int) leftInfraredP2.getY()); 
@@ -165,11 +165,11 @@ public class Car {
 		leftInfraredLine.moveTo(leftInfraredP1[0], leftInfraredP1[1]);
 		leftInfraredLine.lineTo(arr[0], arr[1]);
 		leftInfraredLine.closePath();
-		leftInfraredDist = arr[2];
+		leftInfraredDist = Point2D.distance(leftInfraredP1[0], leftInfraredP1[1], arr[0], arr[1]);
 		
 		double[] rightInfraredP1 = getSecondMoveTo(carRect);
-		Point2D rightInfraredP2 = new Point2D.Double(rightInfraredP1[0], rightInfraredP1[1] - infraredRange);
-		at = AffineTransform.getRotateInstance(direction + rad45, rightInfraredP1[0], rightInfraredP1[1]);
+		Point2D rightInfraredP2 = new Point2D.Double(rightInfraredP1[0], rightInfraredP1[1] - Config.INFRARED_RANGE);
+		at = AffineTransform.getRotateInstance(direction + Config.INFRARED_ANGLE_RIGHT, rightInfraredP1[0], rightInfraredP1[1]);
 		at.transform(rightInfraredP2, rightInfraredP2);
 		arr = bresenham((int) rightInfraredP1[0], (int) rightInfraredP1[1], 
 				(int) rightInfraredP2.getX(), (int) rightInfraredP2.getY());
@@ -177,12 +177,12 @@ public class Car {
 		rightInfraredLine.moveTo(rightInfraredP1[0], rightInfraredP1[1]);
 		rightInfraredLine.lineTo(arr[0], arr[1]);
 		rightInfraredLine.closePath();
-		rightInfraredDist = arr[2];
+		rightInfraredDist = Point2D.distance(rightInfraredP1[0], rightInfraredP1[1], arr[0], arr[1]);
 
 		double[] ultrasonicP1 = new double[2];
 		ultrasonicP1[0] = (leftInfraredP1[0] + rightInfraredP1[0]) / 2;
 		ultrasonicP1[1] = (leftInfraredP1[1] + rightInfraredP1[1]) / 2;
-		Point2D ultrasonicP2 = new Point2D.Double(ultrasonicP1[0], ultrasonicP1[1] - ultrasonicRange);
+		Point2D ultrasonicP2 = new Point2D.Double(ultrasonicP1[0], ultrasonicP1[1] - Config.ULTRASONIC_RANGE);
 		at = AffineTransform.getRotateInstance(direction + ultrasonicDirection, ultrasonicP1[0], ultrasonicP1[1]);
 		at.transform(ultrasonicP2, ultrasonicP2);
 		arr = bresenham((int) ultrasonicP1[0], (int) ultrasonicP1[1], (int) ultrasonicP2.getX(),
@@ -191,22 +191,22 @@ public class Car {
 		ultrasonicLine.moveTo(ultrasonicP1[0], ultrasonicP1[1]);
 		ultrasonicLine.lineTo(arr[0], arr[1]);
 		ultrasonicLine.closePath();
-		ultrasonicDist = arr[2];
+		ultrasonicDist = Point2D.distance(ultrasonicP1[0], ultrasonicP1[1], arr[0], arr[1]);
 		
 		if (!paramsQueue.isEmpty())
 			return;
 		
 		ultrasonicCheck();
 				
-		if (leftInfraredDist <= infraredThreshold && rightInfraredDist > infraredThreshold
+		if (leftInfraredDist < Config.INFRARED_THRESHOLD && rightInfraredDist > Config.INFRARED_THRESHOLD
 			&& speed != 0) {
-			enqueueParams(new CycleParams(rad5, 0, speed), 1);
-		} else if (rightInfraredDist <= infraredThreshold && leftInfraredDist > infraredThreshold
+			enqueueParams(new CycleParams(Config.CAR_ROTATION_STEP, 0, speed), 1);
+		} else if (rightInfraredDist < Config.INFRARED_THRESHOLD && leftInfraredDist > Config.INFRARED_THRESHOLD
 					&& speed != 0) {
-			enqueueParams(new CycleParams(-rad5, 0, speed), 1);
+			enqueueParams(new CycleParams(-Config.CAR_ROTATION_STEP, 0, speed), 1);
 		}
 
-		if (speed != 0 && ultrasonicDist <= ultrasonicThreshold) {
+		if (speed != 0 && ultrasonicDist < Config.ULTRASONIC_THRESHOLD) {
 			enqueueUltrasonicRotate();
 		}
 		
@@ -218,15 +218,13 @@ public class Car {
 			}
 		}
 	}
-
+	
 	public static void init(int x, int y) {
-		direction = 0;
-		speed = 1;
-		width = 16;
-		height = 32;
+		direction = getDirectionVal(0, Config.CAR_DIRECTION);
+		speed = Config.CAR_SPEED;
 		carRect = new Path2D.Double();
-		double halfW = width / 2;
-		double halfH = height / 2;
+		double halfW = Config.CAR_WIDTH / 2;
+		double halfH = Config.CAR_HEIGHT / 2;
 		carRect.moveTo(x - halfW, y - halfH);
 		carRect.lineTo(x + halfW, y - halfH);
 		carRect.moveTo(x + halfW, y - halfH);
@@ -236,16 +234,14 @@ public class Car {
 		carRect.moveTo(x - halfW, y + halfH);
 		carRect.lineTo(x - halfW, y - halfH);
 		carRect.closePath();
+		AffineTransform at = AffineTransform.getRotateInstance(direction, 
+				carRect.getBounds2D().getCenterX(), carRect.getBounds2D().getCenterY());
+		carRect.transform(at);
+		
 		paramsQueue.clear();
-
 		leftInfraredLine = new Path2D.Double();
 		rightInfraredLine = new Path2D.Double();
-		infraredRange = 16;
-		infraredThreshold = 12;
-
 		ultrasonicLine = new Path2D.Double();
-		ultrasonicRange = 50;
-		ultrasonicThreshold = 12;
 		ultrasonicDirection = 0;
 	}
 	
@@ -264,22 +260,6 @@ public class Car {
 	public static Path2D getRightInfraredLine() {
 		return rightInfraredLine;
 	}
-
-//	private static double[] getFirstLineTo(Path2D p) {
-//		PathIterator pi = p.getPathIterator(null);
-//		double[] point = new double[2];
-//		while (!pi.isDone()) {
-//			double[] coords = new double[6];
-//			int segType = pi.currentSegment(coords);
-//			if (segType == PathIterator.SEG_LINETO) {
-//				point[0] = coords[0];
-//				point[1] = coords[1];
-//				return point;
-//			}
-//			pi.next();
-//		}
-//		return null;
-//	}
 
 	private static double[] getFirstMoveTo(Path2D p) {
 		PathIterator pi = p.getPathIterator(null);
@@ -346,11 +326,9 @@ public class Car {
 		int iy = y1 < y2 ? 1 : -1;
 		int x = x1;
 		int y = y1;
-		int cnt = 0;
 
 		if (dx >= dy) {
 			while (true) {
-				cnt++;
 				if (World.checkPoint(x, y) || x == x2)
 					break;
 				x += ix;
@@ -362,7 +340,6 @@ public class Car {
 			}
 		} else {
 			while (true) {
-				cnt++;
 				if (World.checkPoint(x, y) || (y == y2))
 					break;
 				y += iy;
@@ -374,7 +351,7 @@ public class Car {
 			}
 		}
 		
-		int[] ret = {x, y, cnt};
+		int[] ret = {x, y};
 		return ret;
 	}
 	

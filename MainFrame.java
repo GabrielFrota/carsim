@@ -31,6 +31,7 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 1L;
 	
 	private final DrawingPanel drawPanel = new DrawingPanel();
+	private ConfigFrame config;
 
 	private final JMenuBar menuBar = new JMenuBar();
 	private final JMenu menuOptions = new JMenu("Options");
@@ -38,6 +39,7 @@ public class MainFrame extends JFrame {
 	private final JMenuItem mItemCar = new JMenuItem("Set Car");
 	private final JMenuItem mItemStep = new JMenuItem("Step Mode");
 	private final JMenuItem mItemStart = new JMenuItem("Start Simulation");
+	private final JMenuItem mItemConfig = new JMenuItem("Configurations");
 	private final JMenuItem mItemSaveConfig = new JMenuItem("Save Configuration");
 
 	private final JMenu menuTileSize = new JMenu("Tile Size");
@@ -85,13 +87,36 @@ public class MainFrame extends JFrame {
 	
 	class KeyListener implements NativeKeyListener {
 		@Override public void nativeKeyPressed(NativeKeyEvent ke) {
-			if (ke.getKeyCode() == NativeKeyEvent.VC_P) {
+			switch (ke.getKeyCode()) {
+			case NativeKeyEvent.VC_Q:
+				if (!config.isDisplayable())
+					mItemTiles.doClick();
+				break;
+			case NativeKeyEvent.VC_W:
+				if (!config.isDisplayable())
+					mItemCar.doClick();
+				break;
+			case NativeKeyEvent.VC_E:
+				if (!config.isDisplayable())
+					mItemStep.doClick();
+				break;
+			case NativeKeyEvent.VC_R:
+				if (!config.isDisplayable() && State.get() != State.SIMULATION_ON)
+					mItemStart.doClick();
+				break;
+			case NativeKeyEvent.VC_T:
+				if (!config.isDisplayable())
+					mItemConfig.doClick();
+				break;
+			case NativeKeyEvent.VC_ENTER:
+				if (config.isDisplayable())
+					config.fireOkEvent();
+				break;
+			case NativeKeyEvent.VC_P:
 				if (State.get() == State.SIMULATION_ON)
-					mItemActionHandler(mItemStep);
-				else if (State.get() == State.STEP_ON) {
-					mItemActionHandler(mItemStart);
-					new Thread(new Animator()).start();
-				}
+					mItemStep.doClick();
+				else if (State.get() == State.STEP_ON) 
+					mItemStart.doClick();
 			}
 		}
 		@Override public void nativeKeyReleased(NativeKeyEvent arg) {}
@@ -120,6 +145,7 @@ public class MainFrame extends JFrame {
 		mapStates.put(mItemCar, State.SET_CAR);
 		mapStates.put(mItemStart, State.SIMULATION_ON);
 		mapStates.put(mItemStep, State.STEP_ON);
+		mapStates.put(mItemConfig, State.CONFIG_SCREEN);
 		
 		setJMenuBar(menuBar);
 		menuBar.add(menuOptions);
@@ -133,6 +159,12 @@ public class MainFrame extends JFrame {
 		mItemStart.addActionListener(e -> {
 			mItemActionHandler(mItemStart);
 			new Thread(new Animator()).start();
+		});
+		menuOptions.add(mItemConfig);
+		mItemConfig.addActionListener(e -> {
+			mItemActionHandler(mItemConfig);
+			config = new ConfigFrame(Config.FRAME_WIDTH, Config.FRAME_HEIGHT);
+			drawPanel.repaint();
 		});
 		menuOptions.add(mItemSaveConfig);
 		mItemSaveConfig.addActionListener(e -> {
@@ -160,9 +192,9 @@ public class MainFrame extends JFrame {
 		add(drawPanel);
 		setVisible(true);
 			
-		mItemActionHandler(mItemTiles);
-		mItemActionHandler(mItem32x32);
 		World.init(drawPanel.getWidth(), drawPanel.getHeight());
+		mItem32x32.doClick();
+		mItemConfig.doClick();
 		
 		try {
 			GlobalScreen.registerNativeHook();
