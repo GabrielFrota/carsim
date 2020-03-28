@@ -44,6 +44,10 @@ public class World {
 		return image;
 	}
 	
+	public static void set(BufferedImage im) {
+		image = im;
+	}
+	
 	public static void setTile(int x, int y, int size) {
 		Graphics2D g = image.createGraphics();
 		g.setColor(Color.BLACK);
@@ -57,17 +61,7 @@ public class World {
 		g.fillRect(x, y, size, size);
 		g.dispose();
 	}
-	
-	public static void saveToFile() {
-		try {
-			boolean success = ImageIO.write(image, "bmp", new File("world.bmp"));
-			if (!success) 
-				throw new IOException();
-		} catch (Exception ex) {
-			throw new AssertionError(ex);
-		}
-	}
-	
+		
 	public static boolean checkPoint(int x, int y) {
 		if (x >= image.getWidth() || y >= image.getHeight()
 			|| x < 0 || y < 0)

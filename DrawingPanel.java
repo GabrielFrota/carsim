@@ -8,7 +8,6 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Path2D;
 
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -22,9 +21,9 @@ public class DrawingPanel extends JPanel implements Runnable {
 
 	private int mouseX;
 	private int mouseY;
-	private boolean mouseDragged;
 	
-	@Override public void run() {			
+	@Override 
+	public void run() {			
 		Car.oneCycle();
 		repaint();
 		getToolkit().sync();
@@ -57,13 +56,6 @@ public class DrawingPanel extends JPanel implements Runnable {
 					return;
 				}
 			}
-			@Override
-			public void mouseReleased(MouseEvent e) {
-				if (State.get() == State.SET_TILES && mouseDragged) {
-					repaint();		
-					mouseDragged = false;
-				}
-			}
 		});
 		
 		addMouseMotionListener(new MouseAdapter() {
@@ -83,13 +75,14 @@ public class DrawingPanel extends JPanel implements Runnable {
 						World.setTile(e.getX(), e.getY(), TileSize.get());
 					else
 						World.removeTile(e.getX(), e.getY(), TileSize.get());
-					mouseDragged = true;
+					repaint();
 				}
 			}
 		});
 	}
 	
-	@Override public void paintComponent(Graphics g) {
+	@Override 
+	public void paintComponent(Graphics g) {
 		super.paintComponent(g);		
 		Graphics2D g2d = (Graphics2D) g;
 

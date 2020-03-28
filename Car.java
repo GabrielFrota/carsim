@@ -111,55 +111,63 @@ public class Car {
 				x * Math.sin(direction) + y * Math.cos(direction));
 		carRect.transform(at);
 					
-		PathIterator pi = carRect.getPathIterator(null);
-		double[][] points = new double[4][2];
-		int i = 0;
-		while (!pi.isDone()) {
-			double[] coords = new double[6];
-			int segType = pi.currentSegment(coords);
-			if (segType == PathIterator.SEG_MOVETO) {
-				points[i][0] = coords[0];
-				points[i][1] = coords[1];
-				i++;
+		if (Config.CAR_COLLISION_CHECK_ON) {
+			PathIterator pi = carRect.getPathIterator(null);
+			double[][] points = new double[4][2];
+			int i = 0;
+			while (!pi.isDone()) {
+				double[] coords = new double[6];
+				int segType = pi.currentSegment(coords);
+				if (segType == PathIterator.SEG_MOVETO) {
+					points[i][0] = coords[0];
+					points[i][1] = coords[1];
+					i++;
+				}
+				pi.next();
 			}
-			pi.next();
+			int[] arr = bresenham((int) points[0][0], (int) points[0][1], 
+					(int) points[1][0], (int) points[1][1]);
+			boolean frontCollision = arr[0] != (int) points[1][0] 
+					|| arr[1] != (int) points[1][1];
+			arr = bresenham((int) points[1][0], (int) points[1][1], 
+					(int) points[2][0], (int) points[2][1]);
+			boolean rightCollision = arr[0] != (int) points[2][0] 
+					|| arr[1] != (int) points[2][1];
+			arr = bresenham((int) points[2][0], (int) points[2][1], 
+					(int) points[3][0], (int) points[3][1]);
+			boolean backCollision = arr[0] != (int) points[3][0] 
+					|| arr[1] != (int) points[3][1];
+			arr = bresenham((int) points[3][0], (int) points[3][1], 
+					(int) points[0][0], (int) points[0][1]);
+			boolean leftCollision = arr[0] != (int) points[0][0] 
+					|| arr[1] != (int) points[0][1];
+			
+			if (frontCollision || rightCollision || backCollision || leftCollision) {
+				paramsQueue.clear();
+				double angle = Config.CAR_ROTATION_STEP * 2;
+				if (frontCollision) {
+					enqueueParams(new CycleParams((params != null ? 
+						Math.signum(params.rotation) * -angle : -angle), 0, -2), 2);
+				} else if (leftCollision) {
+					enqueueParams(new CycleParams((params != null ? 
+						Math.signum(params.rotation) * -angle : angle), 0, -2), 2);
+				} else if (rightCollision) {
+					enqueueParams(new CycleParams((params != null ? 
+						Math.signum(params.rotation) * -angle : -angle), 0, -2), 2);
+				} else if (backCollision) {
+					enqueueParams(new CycleParams((params != null ? 
+						Math.signum(params.rotation) * -angle : angle), 0, 2), 2);
+				}
+				enqueueParams(new CycleParams(0, 0, 1), 1);
+				//enqueueUltrasonicRotate();
+			}
 		}
-		int[] arr = bresenham((int) points[0][0], (int) points[0][1], 
-				(int) points[1][0], (int) points[1][1]);
-		boolean frontCollision = arr[0] != (int) points[1][0] 
-				|| arr[1] != (int) points[1][1];
-		arr = bresenham((int) points[1][0], (int) points[1][1], 
-				(int) points[2][0], (int) points[2][1]);
-		boolean rightCollision = arr[0] != (int) points[2][0] 
-				|| arr[1] != (int) points[2][1];
-		arr = bresenham((int) points[2][0], (int) points[2][1], 
-				(int) points[3][0], (int) points[3][1]);
-		boolean backCollision = arr[0] != (int) points[3][0] 
-				|| arr[1] != (int) points[3][1];
-		arr = bresenham((int) points[3][0], (int) points[3][1], 
-				(int) points[0][0], (int) points[0][1]);
-		boolean leftCollision = arr[0] != (int) points[0][0] 
-				|| arr[1] != (int) points[0][1];
-		
-//		if (frontCollision || rightCollision || backCollision || leftCollision) {
-//			paramsQueue.clear();
-//			if (frontCollision) {
-//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : -rad10), 0, -2), 2);
-//			} else if (leftCollision) {
-//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : rad10), 0, -1), 2);
-//			} else if (rightCollision) {
-//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : -rad10), 0, -1), 2);
-//			} else if (backCollision) {
-//				enqueueParams(new CycleParams((params != null ? Math.signum(params.rotation) * -rad10 : rad10), 0, 2), 2);
-//			}
-//			enqueueUltrasonicRotate();
-//		}
 		
 		double[] leftInfraredP1 = getFirstMoveTo(carRect);
 		Point2D leftInfraredP2 = new Point2D.Double(leftInfraredP1[0], leftInfraredP1[1] - Config.INFRARED_RANGE);
 		at = AffineTransform.getRotateInstance(direction + Config.INFRARED_ANGLE_LEFT, leftInfraredP1[0], leftInfraredP1[1]);
 		at.transform(leftInfraredP2, leftInfraredP2);
-		arr = bresenham((int) leftInfraredP1[0], (int) leftInfraredP1[1], 
+		int[] arr = bresenham((int) leftInfraredP1[0], (int) leftInfraredP1[1], 
 				(int) leftInfraredP2.getX(), (int) leftInfraredP2.getY()); 
 		leftInfraredLine.reset();
 		leftInfraredLine.moveTo(leftInfraredP1[0], leftInfraredP1[1]);

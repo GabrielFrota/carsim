@@ -16,7 +16,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -40,7 +39,6 @@ public class MainFrame extends JFrame {
 	private final JMenuItem mItemStep = new JMenuItem("Step Mode");
 	private final JMenuItem mItemStart = new JMenuItem("Start Simulation");
 	private final JMenuItem mItemConfig = new JMenuItem("Configurations");
-	private final JMenuItem mItemSaveConfig = new JMenuItem("Save Configuration");
 
 	private final JMenu menuTileSize = new JMenu("Tile Size");
 	private final JMenuItem mItem16x16 = new JMenuItem("16 x 16");
@@ -66,10 +64,12 @@ public class MainFrame extends JFrame {
 		} else if (mapTileSize.containsKey(item)) {
 			TileSize.set(mapTileSize.get(item));
 		}
+		drawPanel.repaint();
 	}
 	
 	class Animator implements Runnable {	
-		@Override public void run() {
+		@Override 
+		public void run() {
 			while (true) {
 				if (State.get() != State.SIMULATION_ON) 
 					return;
@@ -85,38 +85,59 @@ public class MainFrame extends JFrame {
 		}		
 	}
 	
+	private void changeTileSize(boolean increment) {
+		Component[] comps = mItem16x16.getParent().getComponents();
+		for (int i = 0; i < comps.length; i++) {
+			if (comps[i].getBackground() == Color.RED) {
+				if (increment) {
+					if (i == comps.length - 1)
+						return;
+					((JMenuItem)comps[(i + 1) % comps.length]).doClick();
+				} else {
+					if (i == 0)
+						return;
+					((JMenuItem)comps[(i + (comps.length - 1)) % comps.length]).doClick();
+				}
+				return;
+			}
+		}
+	}
+	
 	class KeyListener implements NativeKeyListener {
-		@Override public void nativeKeyPressed(NativeKeyEvent ke) {
+		@Override 
+		public void nativeKeyPressed(NativeKeyEvent ke) {
+			if (config != null && config.isDisplayable())
+				return;		
 			switch (ke.getKeyCode()) {
 			case NativeKeyEvent.VC_Q:
-				if (!config.isDisplayable())
 					mItemTiles.doClick();
 				break;
 			case NativeKeyEvent.VC_W:
-				if (!config.isDisplayable())
 					mItemCar.doClick();
 				break;
 			case NativeKeyEvent.VC_E:
-				if (!config.isDisplayable())
 					mItemStep.doClick();
 				break;
 			case NativeKeyEvent.VC_R:
-				if (!config.isDisplayable() && State.get() != State.SIMULATION_ON)
+				if (State.get() != State.SIMULATION_ON)
 					mItemStart.doClick();
 				break;
 			case NativeKeyEvent.VC_T:
-				if (!config.isDisplayable())
 					mItemConfig.doClick();
-				break;
-			case NativeKeyEvent.VC_ENTER:
-				if (config.isDisplayable())
-					config.fireOkEvent();
 				break;
 			case NativeKeyEvent.VC_P:
 				if (State.get() == State.SIMULATION_ON)
 					mItemStep.doClick();
 				else if (State.get() == State.STEP_ON) 
 					mItemStart.doClick();
+				break;
+			case NativeKeyEvent.VC_EQUALS:
+				if (State.get() == State.SET_TILES)
+					changeTileSize(true);
+				break;
+			case NativeKeyEvent.VC_MINUS:
+				if (State.get() == State.SET_TILES)
+					changeTileSize(false);
 			}
 		}
 		@Override public void nativeKeyReleased(NativeKeyEvent arg) {}
@@ -163,15 +184,7 @@ public class MainFrame extends JFrame {
 		menuOptions.add(mItemConfig);
 		mItemConfig.addActionListener(e -> {
 			mItemActionHandler(mItemConfig);
-			config = new ConfigFrame(Config.FRAME_WIDTH, Config.FRAME_HEIGHT);
-			drawPanel.repaint();
-		});
-		menuOptions.add(mItemSaveConfig);
-		mItemSaveConfig.addActionListener(e -> {
-			if (JOptionPane.showConfirmDialog(this, "This will overwrite previous configuration files.\nAre you sure?",
-					null, JOptionPane.OK_CANCEL_OPTION) == JOptionPane.OK_OPTION) {
-				World.saveToFile();
-			}
+			config = new ConfigFrame(this, Config.FRAME_WIDTH, Config.FRAME_HEIGHT);
 		});
 		
 		menuBar.add(menuTileSize);
@@ -193,8 +206,9 @@ public class MainFrame extends JFrame {
 		setVisible(true);
 			
 		World.init(drawPanel.getWidth(), drawPanel.getHeight());
+		Config.init();
 		mItem32x32.doClick();
-		mItemConfig.doClick();
+		mItemTiles.doClick();
 		
 		try {
 			GlobalScreen.registerNativeHook();
