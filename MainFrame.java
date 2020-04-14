@@ -8,6 +8,7 @@ import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ForkJoinPool;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -67,7 +68,7 @@ public class MainFrame extends JFrame {
 		drawPanel.repaint();
 	}
 	
-	class Animator implements Runnable {	
+	private class Animator implements Runnable {	
 		@Override 
 		public void run() {
 			while (true) {
@@ -84,6 +85,7 @@ public class MainFrame extends JFrame {
 			}	
 		}		
 	}
+	private final Animator animator = new Animator();
 	
 	private void changeTileSize(boolean increment) {
 		Component[] comps = mItem16x16.getParent().getComponents();
@@ -103,7 +105,7 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
-	class KeyListener implements NativeKeyListener {
+	private class KeyListener implements NativeKeyListener {
 		@Override 
 		public void nativeKeyPressed(NativeKeyEvent ke) {
 			if (config != null && config.isDisplayable())
@@ -179,7 +181,7 @@ public class MainFrame extends JFrame {
 		menuOptions.add(mItemStart);
 		mItemStart.addActionListener(e -> {
 			mItemActionHandler(mItemStart);
-			new Thread(new Animator()).start();
+			ForkJoinPool.commonPool().execute(animator);
 		});
 		menuOptions.add(mItemConfig);
 		mItemConfig.addActionListener(e -> {
