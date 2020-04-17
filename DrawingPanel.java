@@ -75,6 +75,8 @@ public class DrawingPanel extends JPanel implements Runnable {
 						World.setTile(e.getX(), e.getY(), TileSize.get());
 					else
 						World.removeTile(e.getX(), e.getY(), TileSize.get());
+					mouseX = 0;
+					mouseY = 0;
 					repaint();
 				}
 			}
