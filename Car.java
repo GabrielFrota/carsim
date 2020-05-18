@@ -5,6 +5,8 @@ import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.Queue;
 
+import javax.swing.JOptionPane;
+
 public class Car {
 
 	private static Path2D carRect;
@@ -109,10 +111,12 @@ public class Car {
 		AffineTransform at = AffineTransform.getTranslateInstance(
 				x * Math.cos(direction) - y * Math.sin(direction),
 				x * Math.sin(direction) + y * Math.cos(direction));
-		carRect.transform(at);
-					
+		if (!Config.CAR_COLLISION_CHECK_ON)
+			carRect.transform(at);
+							
 		if (Config.CAR_COLLISION_CHECK_ON) {
-			PathIterator pi = carRect.getPathIterator(null);
+			Path2D carT = (Path2D)at.createTransformedShape(carRect);
+			PathIterator pi = carT.getPathIterator(null);
 			double[][] points = new double[4][2];
 			int i = 0;
 			while (!pi.isDone()) {
@@ -144,22 +148,43 @@ public class Car {
 			
 			if (frontCollision || rightCollision || backCollision || leftCollision) {
 				paramsQueue.clear();
-				double angle = Config.CAR_ROTATION_STEP * 2;
 				if (frontCollision) {
-					enqueueParams(new CycleParams((params != null ? 
-						Math.signum(params.rotation) * -angle : -angle), 0, -2), 2);
-				} else if (leftCollision) {
-					enqueueParams(new CycleParams((params != null ? 
-						Math.signum(params.rotation) * -angle : angle), 0, -2), 2);
-				} else if (rightCollision) {
-					enqueueParams(new CycleParams((params != null ? 
-						Math.signum(params.rotation) * -angle : -angle), 0, -2), 2);
-				} else if (backCollision) {
-					enqueueParams(new CycleParams((params != null ? 
-						Math.signum(params.rotation) * -angle : angle), 0, 2), 2);
+					at = AffineTransform.getRotateInstance(direction, points[0][0], points[0][1]);
+					Point2D p1 = new Point2D.Double(points[0][0], points[0][1] - 20);
+					at.transform(p1, p1);
+					arr = bresenham((int) points[0][0], (int) points[0][1], 
+							(int) p1.getX(), (int) p1.getY());
+					double distP1 = Point2D.distance(points[0][0], points[0][1], arr[0], arr[1]);
+					
+					at = AffineTransform.getRotateInstance(direction, points[1][0], points[1][1]);
+					Point2D p2 = new Point2D.Double(points[1][0], points[1][1] - 20);
+					at.transform(p2, p2);
+					arr = bresenham((int) points[1][0], (int) points[1][1], 
+							(int) p2.getX(), (int) p2.getY());
+					double distP2 = Point2D.distance(points[1][0], points[1][1], arr[0], arr[1]);
+					
+					if (distP1 >= distP2)
+						enqueueParams(new CycleParams(-Math.toRadians(20), 0, 0), 1);
+					else
+						enqueueParams(new CycleParams(Math.toRadians(20), 0, 0), 1);
+				}
+				if (rightCollision) {
+					double dir = getDirectionVal(direction, -Math.toRadians(90));
+					at = AffineTransform.getTranslateInstance(
+							x * Math.cos(dir) - y * Math.sin(dir),
+							x * Math.sin(dir) + y * Math.cos(dir));
+					carRect.transform(at);
+				}
+				if (leftCollision) {
+					double dir = getDirectionVal(direction, Math.toRadians(90));
+					at = AffineTransform.getTranslateInstance(
+							x * Math.cos(dir) - y * Math.sin(dir),
+							x * Math.sin(dir) + y * Math.cos(dir));
+					carRect.transform(at);
 				}
 				enqueueParams(new CycleParams(0, 0, 1), 1);
-				//enqueueUltrasonicRotate();
+			} else {
+				carRect = carT;
 			}
 		}
 		
@@ -173,7 +198,9 @@ public class Car {
 		leftInfraredLine.moveTo(leftInfraredP1[0], leftInfraredP1[1]);
 		leftInfraredLine.lineTo(arr[0], arr[1]);
 		leftInfraredLine.closePath();
-		leftInfraredDist = Point2D.distance(leftInfraredP1[0], leftInfraredP1[1], arr[0], arr[1]);
+		leftInfraredDist = Config.CAR_SENSOR_ON 
+				? Point2D.distance(leftInfraredP1[0], leftInfraredP1[1], arr[0], arr[1])
+				: Double.MAX_VALUE;
 		
 		double[] rightInfraredP1 = getSecondMoveTo(carRect);
 		Point2D rightInfraredP2 = new Point2D.Double(rightInfraredP1[0], rightInfraredP1[1] - Config.INFRARED_RANGE);
@@ -185,7 +212,9 @@ public class Car {
 		rightInfraredLine.moveTo(rightInfraredP1[0], rightInfraredP1[1]);
 		rightInfraredLine.lineTo(arr[0], arr[1]);
 		rightInfraredLine.closePath();
-		rightInfraredDist = Point2D.distance(rightInfraredP1[0], rightInfraredP1[1], arr[0], arr[1]);
+		rightInfraredDist = Config.CAR_SENSOR_ON
+				? Point2D.distance(rightInfraredP1[0], rightInfraredP1[1], arr[0], arr[1])
+				: Double.MAX_VALUE;
 
 		double[] ultrasonicP1 = new double[2];
 		ultrasonicP1[0] = (leftInfraredP1[0] + rightInfraredP1[0]) / 2;
@@ -199,7 +228,9 @@ public class Car {
 		ultrasonicLine.moveTo(ultrasonicP1[0], ultrasonicP1[1]);
 		ultrasonicLine.lineTo(arr[0], arr[1]);
 		ultrasonicLine.closePath();
-		ultrasonicDist = Point2D.distance(ultrasonicP1[0], ultrasonicP1[1], arr[0], arr[1]);
+		ultrasonicDist = Config.CAR_SENSOR_ON
+				? Point2D.distance(ultrasonicP1[0], ultrasonicP1[1], arr[0], arr[1])
+				: Double.MAX_VALUE;
 		
 		if (!paramsQueue.isEmpty())
 			return;

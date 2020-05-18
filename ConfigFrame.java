@@ -44,6 +44,7 @@ public class ConfigFrame extends JFrame {
 	private final JLabel rotationL = new JLabel("rotation step:");
 	private final JTextField rotationF = new JTextField(size);
 	private final JCheckBox collisionC = new JCheckBox("collision check on");
+	private final JCheckBox sensorC = new JCheckBox("sensor check on");
 	
 	private final JLabel infraredRangeL = new JLabel("maximum range:");
 	private final JTextField infraredRangeF = new JTextField(size);
@@ -91,6 +92,7 @@ public class ConfigFrame extends JFrame {
 		carP.add(rotationL);
 		carP.add(rotationF);
 		carP.add(collisionC);
+		carP.add(sensorC);
 			
 		infraredP.setPreferredSize(dim);
 		infraredP.setBorder(BorderFactory.createTitledBorder("Infrared Settings"));
@@ -142,6 +144,7 @@ public class ConfigFrame extends JFrame {
 			Config.CAR_DIRECTION = Math.toRadians(Double.parseDouble(directF.getText()));
 			Config.CAR_ROTATION_STEP = Math.toRadians(Double.parseDouble(rotationF.getText()));	
 			Config.CAR_COLLISION_CHECK_ON = collisionC.isSelected();
+			Config.CAR_SENSOR_ON = sensorC.isSelected();
 			
 			Config.INFRARED_RANGE = Integer.parseInt(infraredRangeF.getText(), 10);
 			Config.INFRARED_THRESHOLD = Integer.parseInt(infraredThreshF.getText(), 10);
@@ -255,6 +258,7 @@ public class ConfigFrame extends JFrame {
 		directF.setText(Double.toString(Math.toDegrees(Config.CAR_DIRECTION)));
 		rotationF.setText(Double.toString(Math.toDegrees(Config.CAR_ROTATION_STEP)));	
 		collisionC.setSelected(Config.CAR_COLLISION_CHECK_ON);
+		sensorC.setSelected(Config.CAR_SENSOR_ON);
 		infraredRangeF.setText(Integer.toString(Config.INFRARED_RANGE));
 		infraredThreshF.setText(Integer.toString(Config.INFRARED_THRESHOLD));
 		infraredAngleLeftF.setText(Double.toString(Math.toDegrees(Config.INFRARED_ANGLE_LEFT)));

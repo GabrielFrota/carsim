@@ -16,26 +16,27 @@ public class Config {
 	public static int FRAME_HEIGHT = 340;
 	public static int FRAME_PANEL_HEIGHT = 60;
 	
-	public static int ULTRASONIC_RANGE = 50;
-	public static int ULTRASONIC_THRESHOLD = 12;
-	public static double ULTRASONIC_ROTATION_STEP = rad10;
-	public static double ULTRASONIC_ROTATION_ARC = rad160;
-	public static int ULTRASONIC_ROTATION_CNT = (int) (ULTRASONIC_ROTATION_ARC / 2 / ULTRASONIC_ROTATION_STEP);
-	public static double ULTRASONIC_ROTATION_REMINDER = ULTRASONIC_ROTATION_ARC / 2 % ULTRASONIC_ROTATION_STEP;
+	public static volatile int ULTRASONIC_RANGE = 50;
+	public static volatile int ULTRASONIC_THRESHOLD = 12;
+	public static volatile double ULTRASONIC_ROTATION_STEP = rad10;
+	public static volatile double ULTRASONIC_ROTATION_ARC = rad160;
+	public static volatile int ULTRASONIC_ROTATION_CNT = (int) (ULTRASONIC_ROTATION_ARC / 2 / ULTRASONIC_ROTATION_STEP);
+	public static volatile double ULTRASONIC_ROTATION_REMINDER = ULTRASONIC_ROTATION_ARC / 2 % ULTRASONIC_ROTATION_STEP;
 	
-	public static int CAR_WIDTH = 16;
-	public static int CAR_HEIGHT = 32;
-	public static int CAR_SPEED = 1;
-	public static double CAR_DIRECTION = 0;
-	public static double CAR_ROTATION_STEP = rad5;
-	public static int CAR_ROTATION_CNT = (int) (Config.ULTRASONIC_ROTATION_ARC / 2 / Config.CAR_ROTATION_STEP);
-	public static double CAR_ROTATION_REMINDER = Config.ULTRASONIC_ROTATION_ARC / 2 % Config.CAR_ROTATION_STEP;
-	public static boolean CAR_COLLISION_CHECK_ON = false;
+	public static volatile int CAR_WIDTH = 16;
+	public static volatile int CAR_HEIGHT = 32;
+	public static volatile int CAR_SPEED = 1;
+	public static volatile double CAR_DIRECTION = 0;
+	public static volatile double CAR_ROTATION_STEP = rad5;
+	public static volatile int CAR_ROTATION_CNT = (int) (Config.ULTRASONIC_ROTATION_ARC / 2 / Config.CAR_ROTATION_STEP);
+	public static volatile double CAR_ROTATION_REMINDER = Config.ULTRASONIC_ROTATION_ARC / 2 % Config.CAR_ROTATION_STEP;
+	public static volatile boolean CAR_COLLISION_CHECK_ON = true;
+	public static volatile boolean CAR_SENSOR_ON = true;
 	
-	public static int INFRARED_RANGE = 16;
-	public static int INFRARED_THRESHOLD = 12;
-	public static double INFRARED_ANGLE_LEFT = -rad45;
-	public static double INFRARED_ANGLE_RIGHT = rad45;
+	public static volatile int INFRARED_RANGE = 16;
+	public static volatile int INFRARED_THRESHOLD = 12;
+	public static volatile double INFRARED_ANGLE_LEFT = -rad45;
+	public static volatile double INFRARED_ANGLE_RIGHT = rad45;
 	
 	public static void setFieldFromProps(Field f, Properties props) 
 			throws IllegalAccessException, IllegalArgumentException {
