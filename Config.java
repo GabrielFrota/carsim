@@ -28,6 +28,7 @@ public class Config {
 	public static volatile int CAR_SPEED = 1;
 	public static volatile double CAR_DIRECTION = 0;
 	public static volatile double CAR_ROTATION_STEP = rad5;
+	public static volatile double CAR_COLLISION_STEP = rad5;
 	public static volatile int CAR_ROTATION_CNT = (int) (Config.ULTRASONIC_ROTATION_ARC / 2 / Config.CAR_ROTATION_STEP);
 	public static volatile double CAR_ROTATION_REMINDER = Config.ULTRASONIC_ROTATION_ARC / 2 % Config.CAR_ROTATION_STEP;
 	public static volatile boolean CAR_COLLISION_CHECK_ON = true;

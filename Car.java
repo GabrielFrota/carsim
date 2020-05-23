@@ -5,8 +5,6 @@ import java.awt.geom.Point2D;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import javax.swing.JOptionPane;
-
 public class Car {
 
 	private static Path2D carRect;
@@ -23,6 +21,14 @@ public class Car {
 	private static double ultrasonicDist;
 	private static double ultrasonicDistLeft;
 	private static double ultrasonicDistRight;
+	
+	private static int cycleCnt;
+	private static int collisionCnt;
+	
+	public static int[] getStats() {
+		int[] arr = {cycleCnt, collisionCnt};
+		return arr;
+	}
 	
 	static class CycleParams {
 		public double rotation;
@@ -86,6 +92,7 @@ public class Car {
 		if (carRect == null)
 			return;
 		
+		cycleCnt++;
 		CycleParams params = null;
 		if (!paramsQueue.isEmpty()) {
 			params = paramsQueue.remove();
@@ -148,6 +155,7 @@ public class Car {
 			
 			if (frontCollision || rightCollision || backCollision || leftCollision) {
 				paramsQueue.clear();
+				collisionCnt++;
 				if (frontCollision) {
 					at = AffineTransform.getRotateInstance(direction, points[0][0], points[0][1]);
 					Point2D p1 = new Point2D.Double(points[0][0], points[0][1] - 20);
@@ -164,9 +172,9 @@ public class Car {
 					double distP2 = Point2D.distance(points[1][0], points[1][1], arr[0], arr[1]);
 					
 					if (distP1 >= distP2)
-						enqueueParams(new CycleParams(-Math.toRadians(20), 0, 0), 1);
+						enqueueParams(new CycleParams(-Config.CAR_COLLISION_STEP, 0, 0), 1);
 					else
-						enqueueParams(new CycleParams(Math.toRadians(20), 0, 0), 1);
+						enqueueParams(new CycleParams(Config.CAR_COLLISION_STEP, 0, 0), 1);
 				}
 				if (rightCollision) {
 					double dir = getDirectionVal(direction, -Math.toRadians(90));
@@ -182,7 +190,7 @@ public class Car {
 							x * Math.sin(dir) + y * Math.cos(dir));
 					carRect.transform(at);
 				}
-				enqueueParams(new CycleParams(0, 0, 1), 1);
+				enqueueParams(new CycleParams(0, 0, Config.CAR_SPEED), 1);
 			} else {
 				carRect = carT;
 			}
@@ -261,6 +269,8 @@ public class Car {
 	public static void init(int x, int y) {
 		direction = getDirectionVal(0, Config.CAR_DIRECTION);
 		speed = Config.CAR_SPEED;
+		cycleCnt = 0;
+		collisionCnt = 0;
 		carRect = new Path2D.Double();
 		double halfW = Config.CAR_WIDTH / 2;
 		double halfH = Config.CAR_HEIGHT / 2;
