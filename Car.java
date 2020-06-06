@@ -346,13 +346,6 @@ public class Car {
 		return null;
 	}
 	
-//	private static double getDecrementVal(double rotation, double decrement) {
-//		if (Math.abs(rotation) / decrement >= 1) 
-//			return Math.signum(rotation) > 0 ? decrement : -decrement;
-//		else
-//			return rotation % decrement;	
-//	}
-	
 	private static double getDirectionVal(double direction, double theta) {
 		if (Math.signum(theta) > 0) 
 			return (direction + theta) % (2 * Math.PI);
