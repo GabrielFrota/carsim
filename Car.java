@@ -22,12 +22,10 @@ public class Car {
 	private static double ultrasonicDistLeft;
 	private static double ultrasonicDistRight;
 	
-	private static int cycleCnt;
 	private static int collisionCnt;
 	
-	public static int[] getStats() {
-		int[] arr = {cycleCnt, collisionCnt};
-		return arr;
+	public static int getStats() {
+		return collisionCnt;
 	}
 	
 	static class CycleParams {
@@ -92,7 +90,6 @@ public class Car {
 		if (carRect == null)
 			return;
 		
-		cycleCnt++;
 		CycleParams params = null;
 		if (!paramsQueue.isEmpty()) {
 			params = paramsQueue.remove();
@@ -269,7 +266,6 @@ public class Car {
 	public static void init(int x, int y) {
 		direction = getDirectionVal(0, Config.CAR_DIRECTION);
 		speed = Config.CAR_SPEED;
-		cycleCnt = 0;
 		collisionCnt = 0;
 		carRect = new Path2D.Double();
 		double halfW = Config.CAR_WIDTH / 2;

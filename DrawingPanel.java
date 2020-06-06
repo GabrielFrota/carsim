@@ -143,14 +143,12 @@ public class DrawingPanel extends JPanel implements Runnable {
 			g2d.setColor(prevColor);
 		}
 		
-		int[] arr = Car.getStats();
+		int col = Car.getStats();
 		g2d.setColor(Color.RED);
 		g2d.setStroke(bold);
 		Font newFont = g2d.getFont().deriveFont(g2d.getFont().getSize() * 1.4F);
 		g2d.setFont(newFont);
-		g2d.drawString("Collision count: " + Integer.toString(arr[1]), 10, 20);
-		g2d.drawString("Collisions per cycle: " 
-				+ Double.toString((double)arr[1] / (double)arr[0]),10, 40);
+		g2d.drawString("Collision count: " + Integer.toString(col), 10, 20);
 	}
 		
 }
