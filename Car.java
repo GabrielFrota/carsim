@@ -301,6 +301,10 @@ public class Car {
 			return;
 		
 		ultrasonicCheck();
+
+		// CICLO DO ARDUINO COMEÇA AQUI. TODO CÓDIDO ACIMA É REFERENTE AO MOVIMENTO DO CARRO E SEUS SENSORES
+		// NO MUNDO. COMO SE FOSSE A FÍSICA DOS OBJETOS. DAQUI PRA FRENTE, O CÓDIGO REPRESENTA O EXECUTÁVEL
+		// NA MEMÓRIA DO ARDUINO.
 				
 		if (leftInfraredDist < Config.INFRARED_THRESHOLD && rightInfraredDist > Config.INFRARED_THRESHOLD
 			&& speed != 0) {
@@ -309,10 +313,6 @@ public class Car {
 					&& speed != 0) {
 			enqueueParams(new CycleParams(-Config.CAR_ROTATION_STEP, 0, speed), 1);
 		}
-
-		// CICLO DO ARDUINO COMEÇA AQUI. TODO CÓDIDO ACIMA É REFERENTE AO MOVIMENTO DO CARRO E SEUS SENSORES
-		// NO MUNDO. COMO SE FOSSE A FÍSICA DOS OBJETOS. DAQUI PRA FRENTE, O CÓDIGO REPRESENTA O EXECUTÁVEL
-		// NA MEMÓRIA DO ARDUINO.
 		
 		if (speed != 0 && ultrasonicDist < Config.ULTRASONIC_THRESHOLD) {
 			enqueueUltrasonicRotate();
